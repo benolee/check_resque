@@ -4,7 +4,7 @@ require "resque"
 require "optparse"
 
 options  = {}
-required = [:warning, :critical, :host, :queues]
+required = [:critical, :host, :queues]
 
 parser   = OptionParser.new do |opts|
   opts.banner = "Usage: check_resque [options]"
@@ -17,10 +17,10 @@ parser   = OptionParser.new do |opts|
   opts.on("-q", "--queues low,medium,high", "The queues to check (comma separated)") do |q|
     options[:queues] = q
   end
-  opts.on("-w", "--warning percentage", "Warning threshold") do |w|
+  opts.on("-w", "--warning n:m", "Warning threshold") do |w|
     options[:warning] = w
   end
-  opts.on("-c", "--critical critical", "Critical threshold") do |c|
+  opts.on("-c", "--critical n:m", "Critical threshold") do |c|
     options[:critical] = c
   end
 end
@@ -35,7 +35,6 @@ else
 
   queues_to_check = options[:queues].split(",")
   workers = Resque.workers
-
 
   status = :ok
 
@@ -56,7 +55,7 @@ else
 
   print status.to_s.upcase
   print " - "
-  print "#{number_of_workers_working_queues_to_check} of #{options[status]} workers running queues #{options[:queues]}"
+  print "#{number_of_workers_working_queues_to_check} of #{options[status]} workers running queues #{options[:queues]}\n"
 
   if (status == :critical)
     exit(2)
